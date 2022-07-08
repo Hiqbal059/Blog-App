@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static  %}
+
+{% block content %}
+<div class="col-sm-12">
+    <h1 class="mt-2 text-center display-3">Home Page</h1>
+    <h2 class="mt-1 display">Recent Posts</h2>
+    <b>
+        <hr></b>
+    {% for posts in object_list %}
+    <div class="container my-3 bg-gray">
+        <div class="jumbotron">
+          <p class="text-primary">Article by : {{posts.author.first_name|upper}}</p>
+            <h1 class="display-4">{{posts.title}}</h1>
+            <p class="lead">{{posts.content|safe|linebreaksbr|slice:":150"}}..............</p>
+            <hr class="my-4">
+            <p class="text-secondary">posted on:  {{posts.time}}</p>
+            <p class="lead">
+                <a class="btn btn-primary btn-lg" href="{% url 'viewpost' posts.id %}" role="button">Continue
+                    Reading</a>
+            </p>
+        </div>
+    </div>
+    <div class="row-sm-5 bg-black">
+        <br>
+        <span type="hidden"></span>
+    </div>
+    {% endfor %}
+    <nav aria-label="Page navigation example">
+    {% if is_paginated %}
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{page_obj.previous_page_number}}">&laquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <a class="page-link" href="#">&laquo;</a>
+        </li>
+        {% endif %}
+        {% for i in paginator.page_range %}
+          {% if page_obj.number == i %}
+          <li class="page-item"><a class="page-link active">{{ i }}</a></li>
+          {% else %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+          </li>
+          {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item">
+          <a href="?page={{page_obj.next_page_number}}" class="page-link">&raquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <a class="page-link">&raquo;</a>
+        </li>
+        {% endif %}
+      </ul>
+      {% endif %}
+    </nav>
+  </div>
+  {% endblock content %}
+  <script src="https://code.jquery.com/jquery-3.5.1.js"
+  integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+  $(document).on('submit', '#post_id', function (e) {
+      e.preventDefault();
+      $.ajax({
+          type: 'POST',
+          url: '{% url "home" %}',
+          data: {
+              task: $("#like").val(),
+              csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+          },
+
+      })
+  });
+</script>
+

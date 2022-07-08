@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static  %}
+
+{% block content %}
+{% if request.user.is_authenticated %}
+<div class="col-sm-10"></div>
+<h3 class="my-5">Edit Post</h3>
+<form action="" method="POST">
+  {% csrf_token %}
+  {{form.media}}
+  {{form.as_p}}
+  <input type="submit" value="Update Post" class="btn btn-warning">
+  <a href="{% url 'dashboard' %}" class="btn btn-danger">Cancel</a>
+</form>
+{% else %}
+<h1 class="text-white my-5 text-center">Don't be Smart<br>You are not allowed</h1>
+{% endif %}
+{% endblock content %}

@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static  %}
+
+{% block content %}
+<div class="col">
+  <strong>
+    <h1 class="mt-5">Suggestions Panel</h1>
+  </strong>
+  <div class="col-sm-2">
+    <a href="{% url 'dashboard' %}" class="btn btn-success mt-5 ">Back to Dashboard</a>
+  </div>
+  <div class="col-sm-10">
+    <hr>
+    {% if suggestions %}
+    <h1 class="text-center mb-5 ">Suggestions on your posts</h1>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col" style="width:15%" class="">Post</th>
+          <th scope="col" style="width:20%" class="">Suggested by</th>
+          <th scope="col" style="width:15%" class="">Time</th>
+          <th scope="col" style="width:15%" class="">Suggestion</th>
+          <th scope="col" style="width:25%" class="">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for suggestion in suggestions %}
+        <tr>
+          {% if suggestion.suggestion_user != user %}
+          <td class="">{{suggestion.suggestion_post.title|upper}}</td>
+          <td class="">{{suggestion.suggestion_user|upper}}</td>
+          <td class="">{{suggestion.time.date}}</td>
+          <th scope="row" class="">{{suggestion.suggestion_content}}</th>
+          <td class="">
+            <form action="{% url 'suggestion_action' %}" method="POST">
+              {% csrf_token %}
+            <input type="hidden" name="status" value="modified">
+            <input type="hidden" name="suggestion_id" value="{{suggestion.id}}">
+            <button class="btn btn-warning" type="submit">Modify</button>
+            </form>
+            <form action="{% url 'suggestion_action' %}" method="POST">
+              {% csrf_token %}
+              <input type="hidden" name="status" value="rejected">
+              <input type="hidden" name="suggestion_id" value="{{suggestion.id}}">
+              <button class="btn btn-danger" type="submit">Reject</button>
+            </form>
+            <form action="{% url 'suggestion_action'%}" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="status" value="replied">
+              <input type="hidden" name="suggestion_id" value="{{suggestion.id}}">
+                    <button class="btn btn-outline-info" type="button" data-toggle="collapse" data-target="#reply" aria-expanded="false" aria-controls="collapseExample">
+                     Reply
+                  </button>
+                <div class="collapse" id="reply">
+                  <div class="form-group m-4">
+                    <textarea type="text" class="form-outline" id="story" name="reply_suggestion" rows="2" cols="10" placeholder="Reply here"></textarea>
+                    <button type="submit" class="btn btn-warning btn-sm">submit</button>
+                  </div>
+                </div>
+            </form>
+          </td>
+        </tr></a>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else%}
+    <h1 class="text-center mb-5 ">No suggestion yet....</h1>
+    <hr>
+    {% endif %}
+  </div>
+  <div class="col-sm-10">
+    <h1 class="text-Green text-center mb-5 ">Your Suggestions on others posts</h1>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col" style="width:15%" class="">Post</th>
+          <th scope="col" style="width:15%" class="">Time</th>
+          <th scope="col" style="width:35%" class="">Suggestion</th>
+          <th scope="col" style="width:25%" class="">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for posted_suggestion in posted_suggestions %}
+        <tr>
+          <td class="">{{posted_suggestion.suggestion_post.title|upper}}</td>
+          <td class="">{{posted_suggestion.time.date}}</td>
+          <th scope="row" class="">{{posted_suggestion.suggestion_content}}</th>
+          <td class="">
+            {% if posted_suggestion.status == "suggested" %}
+              <a type="disable" class="btn btn-info ">Suggested</a>
+            {% elif posted_suggestion.status == "rejected" %}
+              <a type="disable" class="btn btn-danger ">Rejected</a>
+            {% elif posted_suggestion.status == "replied" %}
+                    <button class="btn btn-success" type="button" data-toggle="collapse" data-target="#replybox{{posted_suggestion.id}}" aria-expanded="false" aria-controls="replybox{{posted_suggestion.id}}">
+                    Check Reply
+                  </button>
+                <div class="collapse" id="replybox{{posted_suggestion.id}}">
+                  <div class="form-group m-4">
+                    {% for reply in replies %}
+                      {% if reply.reply.id == posted_suggestion.id %}
+                      {{reply.suggestion_content}}
+                      {% endif %}
+                    {% endfor %}
+                    </p>
+                  </div>
+                </div>
+            </form>
+            {% endif %}
+          </td>
+        </tr></a>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock content %}

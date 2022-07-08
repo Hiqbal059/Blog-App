@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static  %}
+
+{% block title %}<title>Dashboard</title>{% endblock title %}
+
+{% block content %}
+<hr>
+{% if request.user.is_authenticated %}
+<h1 class="display-3 text-center mb-5">Dashboard</h1>
+  <div class="">
+   {% if moderator %}
+    <div class="col-sm-12"></div>
+    <h1 class="mb-5">Pending Posts for approval</h1>
+    {% else %}
+     <h1 class="text-center mb-5">Posts</h1>
+    {% endif %}
+  </div>
+  {% if pending_posts %}
+  <h1 class="mb-5">Pending Posts for approval</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col" style="width:50%" class="">Title</th>
+        <th scope="col" style="width:25%" class="">Time</th>
+        <th scope="col" style="width:25%" class="">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for posts in pending_posts %}
+      <tr>
+        <td class="">{{posts.title}}</td>
+        <th scope="row" class="">{{posts.time.date}}</th>
+        <td class="">
+          <a href="{% url 'delpost' posts.id %}" class="btn btn-outline-danger ">Delete</a>
+          <a href="{% url 'editpost' posts.id %}" class="btn btn-outline-warning ">Edit</a>
+        </td>
+      </tr></a>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  {% if posts %}
+  <h1 class="mb-5">Published Posts</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col" style="width:20%" class="">Title</th>
+        {% if moderator %}
+        <th scope="col" style="width:20%" class="">Author</th>
+        {% endif %}
+        <th scope="col" style="width:25%" class="">Time</th>
+        <th scope="col" style="width:35%" class="">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for posts in posts %}
+      <tr>
+        <td class="">{{posts.title}}</td>
+        {% if moderator %}
+        <td class="">{{posts.author|upper}}</td>
+        {% endif %}
+        <th scope="row" class="">{{posts.time.date}}</th>
+        <td class="">
+          {% if moderator %}
+          <form action="{% url 'moderator_action' %}" method="Post">
+            {% csrf_token %}
+            <input type="hidden" name="post_id" value="{{posts.id}}">
+            <input type="hidden" name="action" value="publish">
+            <button type="submit" class="btn btn-outline-success">publish</button></form>
+            <form action="{% url 'moderator_action' %}" method="Post">
+              {% csrf_token %}
+              <input type="hidden" name="post_id" value="{{posts.id}}">
+              <input type="hidden" name="action" value="delete">
+              <button type="submit" class="btn btn-outline-danger">Delete</button></form>
+              <a href="{% url 'viewpost' posts.id %}" class="btn btn-outline-primary">UserView</a>
+          {% else %}
+          <a href="{% url 'editpost' posts.id %}" class="btn btn-outline-warning ">Edit</a>
+          <a href="{% url 'delpost' posts.id %}" class="btn btn-outline-danger ">Delete</a>
+          <a href="{% url 'viewpost' posts.id %}" class="btn btn-outline-primary">UserView</a>
+          {% endif %}
+        </td>
+      </tr></a>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <h1 class="text-center mb-5 ">No Posts yet</h1>
+  {% endif %}
+
+  <hr>
+  {% if moderator %}
+  {% if reported_posts %}
+  <h1 class="mb-5 ">Reported Posts</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col" style="width:20%" class="">Title</th>
+        <th scope="col" style="width:20%" class="">Author</th>
+        <th scope="col" style="width:30%" class="">Time</th>
+        <th scope="col" style="width:30%" class="">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for posts in reported_posts %}
+      <tr>
+        <td class="">{{posts.title}}</td>
+        <td class="">{{posts.author|upper}}</td>
+        <th scope="row" class="">{{posts.time.date}}</th>
+        <td class="">
+
+          <form action="{% url 'moderator_action' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="post_id" value="{{posts.id}}">
+            <input type="hidden" name="action" value="unpublish">
+            <button type="submit" class="btn btn-outline-warning">Un-publish</button></form>
+            <form action="{% url 'moderator_action' %}" method="POST">
+              {% csrf_token %}
+              <input type="hidden" name="post_id" value="{{posts.id}}">
+              <input type="hidden" name="action" value="delete">
+              <button type="submit" class="btn btn-outline-danger">Delete</button></form>
+        </td>
+      </tr></a>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <h1 class="text-center mb-5 ">No Reported Posts yet</h1>
+  {% endif %}
+
+  {% if comments %}
+  <h1 class="text-center mb-5 ">Recent Comments</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col" style="width:15%" class="">Post</th>
+        <th scope="col" style="width:15%" class="">Writter</th>
+        <th scope="col" style="width:10%" class="">Time</th>
+        <th scope="col" style="width:35%" class="">Comment</th>
+        <th scope="col" style="width:25%" class="">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for comment in comments %}
+      <tr>
+        <td class="">{{comment.comment_post}}</td>
+        <td class="">{{comment.comment_user}}</td>
+        <th scope="row" class="">{{comment.time.date}}</th>
+        <td class="">{{comment.comment_content}}</td>
+        <td class="">
+          {% csrf_token %}
+          <a href="" class="btn btn-warning ">Edit</a>
+          <a href="" class="btn btn-danger ">Delete</a>
+          <a href="" class="btn btn-primary">UserView</a>
+        </td>
+      </tr></a>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+{% endif %}
+<hr>
+{% if not moderator %}
+{% if likes %}
+<h1 class="text-center mb-5 ">Recent likes</h1>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col" style="width:20%" class="">Post</th>
+      <th scope="col" style="width:20%" class="">Liker</th>
+      <th scope="col" style="width:30%" class="">Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for like in likes %}
+    <tr>
+      <td class="">{{like.post.title}}</td>
+      <td class="">{{like.user}}</td>
+      <th scope="row" class="">{{like.time}}</th>
+    </tr></a>
+    {% endfor %}
+  </tbody>
+  </table>
+  {% else %}
+  <h1 class="text-center mb-5 ">No Likes yet......</h1>
+  {% endif %}
+  </div>
+ </div>
+  {% endif %}
+{% else %}
+<h1 class="my-5 text-center">Don't be Smart<br>You are not Authenicated</h1>
+{% endif %}
+{% endblock content %}

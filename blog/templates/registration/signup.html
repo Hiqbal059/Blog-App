@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static  %}
+{% block title %}<title>Registration</title>{% endblock title %}
+{% block content %}
+    {% if messages %}
+    {% for message in messages %}
+    <p class="alert alert-{{message.tags}} mb-5"> {{message}} </p>
+    {% endfor %}
+    {% endif %}
+<div class="col-sm-8">
+  <h3 class=" mt-5">Signup Page</h3>
+  <form action="" method="POST">
+    {% csrf_token %}
+    {% for forms in form  %}
+    {{forms.label_tag}} {{forms}} <small class="text-warning"> {{forms.errors|striptags}}</small>
+    {% endfor %}
+    <input class="btn btn-primary text-center mt-5" type="submit" value="Signup">
+    {% if form.non_field_errors %}
+    {% for errors in form.non_field_errors %}
+    <p class="alert alert-danger my-3">{{errors}}</p>
+    {% endfor %}
+    {% endif %}
+
+  </form>
+</div>
+{% endblock content %}

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static  %}
+
+{% block content %}
+<h1 class="display-4 pd-5 text-center">{{post.title|upper}}</h1>
+<h2 class="display-6 pd-3"> Author : {{post.author|upper}}</h2>
+<div class="display-6 pd-3">
+  <span>
+    <h5>Posted on :{{post.time}}</h5>
+  </span>
+</div>
+<hr>
+<h3 class="display-6 pd-3">{{post.content|safe}}</h3><br><br>
+<hr>
+<div class="container">
+  <form action="{% url 'like_post'%}" method="POST" class="likeform" id="idform" value={{post.post_likes.all.count}}>
+    {% csrf_token %}
+    <div class="row col-2 mt-2">
+      <input type="hidden" name="post_id" id="like" value="{{ post.id }}">
+      {% if request.user not in post.post.all %}
+      <div class="col"><button type="submit" class="btn btn-info btn-block form-control" id="like-btn" value="{{post.post_likes.all.count}}"
+            class="far fa-thumbs-up">{{ post.post_likes.all.count }}</button>
+      </div>
+      {% else %}
+      <div class="col"><button type="submit" class="btn btn-warning btn-block form-control" id="like"
+          value={{post.post_likes.all.count}}><i class="far fa-thumbs-up">{{ post.post_likes.all.count }}</i></button>
+      </div>
+      {% endif %}
+  </form>
+</div>
+<br>
+<hr>
+<hr>
+<div class="container">
+  <h2 class="pd-3"><i class="fa fa-comments" aria-hidden="true">Comments({{comments.all.count}})</i></h2>
+  <div class="col-sm-5">
+  <form action="comment" method="post" name="comment-form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input class="form-outline" type="text" name="comment" placeholder="Write New comment">
+    <input type="file" name="attachment" class="fomr-contrl">
+    <input type="hidden" name="post_id" value="{{post.id}}">
+    <input type="hidden" name="parent_id" value="">
+    <input type="submit" class="btn btn-outline-success btn-sm mt-1" value="Add Comment">
+    <script>
+      function submitForm() {
+        document.comment - form.submit();
+        document.comment - form.reset();
+      }
+    </script>
+    <hr>
+  </form>
+</div >
+{% for comment in comments %}
+   <span>
+        <b>{{comment.comment_user|upper}}</b> - {{comment.time}}
+        <br>
+    </span>
+    <span> "{{comment.comment_content}}"</span>
+<div class="row">
+    <div class="col-md-6">
+      <div class="col-md-2">
+      <form action="{% url 'like_comment' %}" method="POST" name="comment">
+        {% csrf_token %}
+        <input type="hidden" name="post_id" value="{{post.id}}">
+        <input type="hidden" name="comment_id" value="{{comment.id}}">
+        <button type="submit" class="far fa-thumbs-up" id="like"
+          value="{{ comment.comment_likes.all.count }}">{{ comment.comment_likes.all.count }}</button>
+       </form>
+      </div>
+      <div class="reply mx-0 col-md-2">
+      <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#replybox{{comment.id}}"
+        aria-expanded="false" aria-controls="replybox{{comment.id}}">
+        Reply
+      </button>
+      </div>
+      <div class="collapse" id="replybox{{comment.id}}">
+        <div class="card card-body my-2">
+          <form action="comment" method="post" name="reply-form">
+            {% csrf_token %}
+            <div class="form-group">
+              <input class="form-outline" type="text" name="comment" placeholder="Reply here">
+              <input type="hidden" name="parent_id" value="{{comment.id}}">
+            </div>
+            <input type="hidden" name="post_id" value="{{post.id}}">
+            <input type="submit" class="text-center btn btn-success btn-sm m-1" value="Reply Comment">
+            {% for reply in replies %}
+            {% if reply.parent.id == comment.id %}
+            <br><span>
+              <b>{{reply.comment_user|upper}}</b> - {{reply.time}}
+              <br></span>
+            <span> "{{reply.comment_content}}"</span>
+            {% endif %}
+            {% endfor %}
+            <script>
+              function submitForm() {
+                document.reply - form.submit();
+                document.reply - form.reset();
+              }
+            </script>
+          </form>
+        </div>
+      </div>
+      <div class="col-md-2">
+      <form action="{% url 'report'%}" method="Post">
+      {% csrf_token %}
+      <input type="hidden" name="comment_id" value="{{comment.id}}">
+      <input type="hidden" name="post_id" value="{{post.id}}">
+      <button type="submit" class="btn btn-warning">report</button>
+      </form>
+      </div>
+</div>
+  {% endfor %}
+  <hr>
+  <div class="row mt-4">
+    <div class="col-4 m-4 ">
+      <form action="{% url 'suggestion'%}" method="post">
+        {% csrf_token %}
+              <button class="btn btn-outline-info md-4" type="button" data-toggle="collapse" data-target="#suggestion" aria-expanded="false" aria-controls="collapseExample">
+              <i class="fa fa-lightbulb"
+            aria-hidden="true">Suggest something</i>
+            </button>
+          <div class="collapse" id="suggestion">
+            <div class="form-group m-4">
+              <textarea type="text" class="form-outline" id="story" name="suggestion" rows="5" cols="25" placeholder="Suggest Here....."></textarea>
+              <input type="hidden" name="post_id" value="{{post.id}}">
+              <button type="submit" class="btn btn-warning btn-sm">submit</button>
+            </div>
+          </div>
+      </form>
+    </div>
+    <div class="col-4 mt-4">
+      <form action="{% url 'report'%}" method="POST" value={{post.id}}>
+        {% csrf_token %}
+        <div class="">
+          <input type="hidden" name="post_id" value="{{ post.id }}">
+          <input type="hidden" name="comment_id" value="0">
+          <div class="col"><button type="submit" class="btn btn-danger btn-lg form-control" id="report-btn"
+              value="{{post.id}}"><i class="fa fa-lightbulb" aria-hidden="true">Report</i></button></div>
+      </form>
+    </div>
+  </div>
+
+  {% endblock content %}

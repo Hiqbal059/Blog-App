@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static  %}
+
+{% block content %}
+{% if request.user.is_authenticated %}
+<h1 class="display-4 pd-5">Delete Post</h1>
+<h1 class="display-4 pd-5 text-center">{{post.title}}</h1>
+<hr>
+<h2 class="display-6 pd-3">{{post.content|safe}}</h2>
+<hr>
+<div class="form-group">
+  <form action="" method="POST">
+    {% csrf_token %}
+    <strong>Are You Sure??</strong>
+    <button type="submit" class="btn btn-danger" value="DELETE">Delete</button>
+  </form>
+</div>
+{% else %}
+<h1 class="text-white my-5 text-center">Don't be Smart<br>You are not allowed</h1>
+{% endif %}
+{% endblock content %}

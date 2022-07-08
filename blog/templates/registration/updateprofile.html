@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static  %}
+
+{% block content %}
+<div class="col-sm-8">
+  <h3 class="mt-5">Update Profile</h3>
+
+
+  <form action="" method="POST">
+    {% csrf_token %}
+    {% for forms in form  %}
+    {{forms.label_tag}} {{forms}} <small class="text-warning"> {{forms.errors|striptags}}</small>
+    {% endfor %}
+
+    {% if form.non_field_errors %}
+    {% csrf_token %}
+    {% for errors in form.non_field_errors %}
+    <p class="alert alert-danger my-3">{{errors}}</p>
+    {% endfor %}
+    {% endif %}
+    <input class="btn btn-warning text-center mt-5" type="submit" value="Update Profile">
+  </form>
+</div>
+{% endblock content %}
